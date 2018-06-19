@@ -1,0 +1,8 @@
+library(lubridate)
+library(Bio132)
+ISS001<-read.csv("temp_log_001.csv")
+start<-ymd_hm("2017-10-31T14:48")
+end<-ymd_hms(start)+minutes(10)
+ISS001_10min<-subset(ISS001, time=start:end)
+sum_stats(ISS001_10min$temperature)
+barplot(ISS001_10min$temperature, xlab=paste("Temps for",start,"to",end))
