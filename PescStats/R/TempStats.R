@@ -9,7 +9,7 @@
 #'@param x file name of the csv containing the desired temperature data (eg: "ISS_001_log.csv")
 #'@param t the timestamp of the desired start time, including the year, month, day, hour, minute, and second. (eg. 2017-10-31T19:00:12.656Z)
 #'@param d the duration, in minutes, of the data one wishes to analyze
-#'@param title the desired title of the barplot, in quotes
+#'@param title the desired title of the barplot, in quotes; if NULL, barplot will be untitled
 #'@examples
 #'          TempStats("ISS_001_log.csv","2017-10-31 14:48:00",10,"ISS1 Bullseye")
 #'Temperature Data from 2017-10-31 14:48:00 to 2017-10-31 14:58:00
@@ -44,5 +44,5 @@ TempStats<-function(x,t,d,title){
   title<-NULL
  else
    title=title
-  barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end))
+  barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end),ylab="Temperature (C)")
 }
