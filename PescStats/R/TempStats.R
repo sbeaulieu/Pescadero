@@ -46,6 +46,7 @@ TempStats<-function(x,t,d,title,type){
   ISS_duration<-subset(ISS, time>start & time<end)
   writeLines(paste("Temperature Data from",start,"to",end))
   sum_stats(ISS_duration$temperature)
+  ymax<-max(ISS_duration$temperature)
  
   if (missing(title))
   title<-NULL
@@ -53,11 +54,11 @@ TempStats<-function(x,t,d,title,type){
    title=title
   
  if (missing(type))
-  barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end),ylab="Temperature (C)")  
+  barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end), ylim=c(0,ymax), ylab="Temperature (C)")  
   else if (type == "barplot")
-   barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end),ylab="Temperature (C)")
+   barplot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end), ylim=c(0,ymax), ylab="Temperature (C)")
  else if(type == "scatterplot")
-   plot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end),ylab="Temperature (C)",pch=20)
+   plot(ISS_duration$temperature, main=title, xlab=paste("Temps for",start,"to",end),ylim=c(0,ymax), ylab="Temperature (C)",pch=20)
  else 
    print ("Error generating graph: please specify type= ''barplot'' or ''plot''")
 }
