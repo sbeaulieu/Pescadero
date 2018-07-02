@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ---
 title: "TempStats_Using_Chemical_Data_Times"
 output:
@@ -6,21 +7,28 @@ output:
   html_document: default
   word_document: default
 ---
-This notebook uses the custom function TempStats, in the custom library PescStats (available on GitHub at sbeaulieu/Pescadero/PescStats), to get a plot (barplot or scatterplot) and summary statistics of temperature data from a 10 minute interval near the end of chemical measurements. TempStats() relies on functions from the package lubridate. The functions in PescStats are frequently updated, so PescStats may need to be reinstalled on occasion. Variations on the functions sum_stats() and TempStats() are defined below as sum_stats_values() and TempStats_Times(), as wll as the two novel functions chem_measure() and ISS_Stats(). The purposes of these additional functions are commented where they are defined.
 
-Note that in the current version of this notebook, temp_start() and temp_duration() (previously part of chem_measure()) can be used to automatically determine the starting time and duration of temperature data to analyze using the chemical data times. These must be run before TempStats() and TempStats_times() if one does not want to manually find and input these values for each site. temp_start() and temp_duration() should take the same arguments used in chem_time(), and ISS_period() (previously part of TempStats_times()) should take the same arguments as TempStats_times().
+##Introduction (WIP)
 
-The majority of the functions utilized in this notebook, but especially chem_measure(), TempStats(), and TempStats_times() are built around the syntax utilized in the files they call, referencing things such as specific column headers. These files, as well as the current version of this R Notebook, may be found in the Google Drive. For ease of modification, the file names are assigned to variables in the r chunk {r variables called often}. This way, if the file is renamed, the name just be modified in this chunk, rather than having to modify every instance in which that file is called.
+This notebook uses the custom function TempStats, in the custom library PescStats (available on GitHub at sbeaulieu/Pescadero/PescStats), to get a plot (barplot or scatterplot) and summary statistics of temperature data from a 10 minute interval near the end of chemical measurements. TempStats() relies on functions from the package lubridate. The library devtools is also called, but is only necessary for installing PescStats from GitHub. The functions in PescStats are frequently updated, so PescStats may need to be reinstalled on occasion. Variations on the functions sum_stats() and TempStats() are defined below as sum_stats_values() and TempStats_Times(), as wll as the two novel functions chem_measure() and ISS_Stats(). temp_start(), temp_duration(), and ISS_period() have also been added; they were originally part of previous functions (chem_measure() for the first two, ISS_Stats() for the last one), but were separated out to avoid globally defining variables with functions. The purposes of all additional functions are commented where they are defined.
 
-```{r libaries and functions}
-#testing automated temp times
+Note that in the current version of this notebook, chem_measure(), temp_start(), and temp_duration() must be run before TempStats() and TempStats_times() if one wants to automatically retrieve the timing and duration for temperature measurements based on chemical measurements. Both TempStats() and TempStats_times() can still take manually-input start time and duration values. Additionally, ISS_period() must be run before ISS_Stats(). TempStats_times(), ISS_duration() and TempStats() should take the same first three arguments, in the same order, to ensure the data output to the table are the same as those printed in the chunk and output to the temperature graph. temp_start() and temp_duration() should take the same arguements as chem_time(), as they were all initially part of the same function.
+
+This notebook also uses eight specific .csv files: one giving, among other things, the start and end times of chemical measurements per location, and one file for each of the seven station. The majority of the functions utilized in this notebook, but especially chem_measure(), TempStats(), and TempStats_times() are built around the syntax utilized in the files they call, referencing things such as specific column headers. These files, as well as the current version of this R Notebook, may be found in the Google Drive. For ease of modification, the file names are assigned to variables in the r chunk {r variables called often}, under the subheading "Assigning file names to variables". This way, if the file is renamed, the name just be modified in this chunk, rather than having to modify every instance in which that file is called.
+
+This notebook currently outputs all results within each chunk, not to separate files. Each temperature graph for a given location (eg, bullseye or away) should be generated at the end of the code for that location, along with the printed summary statistics. The table detailing temperature and chemical times per location, along with the summary statistics, is at the very end of this notebook.
+
+###R Libraries:
+```{r libaries}
 #install.packages("lubridate")  #install lubridate, if not already present on the machine
-#install.packages("devtools") #install devtools
 library(lubridate)#load Lubridate
-library(devtools) #load devtools (only necessary if installing PescStats from GitHub)
+#library(devtools) #load devtools (only necessary if installing PescStats from GitHub)
 #install_github("sbeaulieu/Pescadero/PescStats") #installs PescStats; not a bad idea to frequently re-install due to ongoing modifications of the package
 library(PescStats) #load PescStats
+```
 
+###Locally defined functions:
+```{r local functions}
 sum_stats_values<-function(x){   #variation of sum_stats() function in PescStats to return JUST the summary statistic values indicated below; original sum_stats() function prints these values with labels in the R console
   decimal<-strsplit(as.character(x),"\\.")[[1]][2] 
   if(is.na(decimal))
@@ -55,9 +63,9 @@ temp_start<-function(x,y,z){ #same input as chem_measure()
   interval<-interval(chem_start,chem_end) #sets interval for calculating length of time btwn start and end
   length<-time_length(interval,unit="minutes") #calculates time difference, in min, btwn start end end
   if (length<10)
-    temp_start<-chem_start #sets temp_start to start time of chemistry measurements if chemistry taken for less than 10min
+    start<-chem_start #sets temp_start to start time of chemistry measurements if chemistry taken for less than 10min
   else
-    temp_start<-ymd_hms(chem_end)-minutes(10) #sets temp_start to 10min before the end of chemical measurements if chemistry taken for 10 minutes or more
+    start<-ymd_hms(chem_end)-minutes(10) #sets temp_start to 10min before the end of chemical measurements if chemistry taken for 10 minutes or more
 }
 
 temp_duration<-function(x,y,z){ #same input as chem_measure() and temp_duration()
@@ -87,7 +95,7 @@ TempStats_times<-function(x,t,d){  #variation of TempStats() function in PescSta
 }
 
 #creating a separate function to avoid using <<- or assign()
-ISS_period<-function(x,t,d){ #same input as TempStats_times()
+ISS_period<-function(x,t,d){ #same input as TempStats_times(), creates subset of temperature data for the appropriate times
     ISS<-read.csv(x) #same as part of TempStats_times(), separated to avoid globally defining ISS_period w/in it
   ISS$time<-ymd_hms(ISS$time)
   start<-ymd_hms(t) 
@@ -102,11 +110,12 @@ ISS_Stats<-function(c,t,s){ #x is variable for whole ISS, c is variable for chem
 }
 ```
 
+###Assigning file names to variables
 ```{r variables called often}
 chemical_times_csv<-"Pescadero_Chemical_Timestamps_31May2018_modified.csv"
     #column headers have been renamed from initial file sent by Scott to remove spaces
     #additional columns have been added to put chemical times in format recognized by lubridate
-    #rows where chemical start/end times have been manually removed from this spreadsheet; they caused issues with chem_measure
+    #rows wh ere chemical start/end times have been manually removed from this spreadsheet; they caused issues with chem_measure
     
 #temp_start is created for each location by chem_measure() based on the starting chemical time in chemical_times_csv
 #duration is created for each location by chem_measure() based on the length of chemical measurements in chemical_times_csv, default is 10min
@@ -118,180 +127,182 @@ ISS005<-"temp_log_005.csv"
 ISS006<-"temp_log_006.csv"
 ISS007<-"temp_log_007.csv"
 ```
+
+##Temperature Analyses
+
 ISS 001
 ```{r 001}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,1,"bullseye") #store start, end times chem data
-  start<-temp_start(chemical_times_csv,1,"bullseye") #determine start time for temp
-  duration<-temp_duration(chemical_times_csv,1,"bullseye") #determine duration for temp, usually 10min
-t_timeframe<-TempStats_times(ISS001,start,duration) #store start, end times temp analysis
-  ISS_per<-ISS_period(ISS001,start,duration) #subset data for site and location
-ISS_summary<-sum_stats_values(ISS_per$temperature) #store temp summary statistics
-ISS1_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary) #vector of times and summary statistics
+  chem_time<-chem_measure(chemical_times_csv,1,"bullseye") #print chem start and end times; chemical_times_csv defined in {r variables called often}
+    start<-temp_start(chemical_times_csv,1,"bullseye") #isolate chemical start time, save as variable "start"
+    duration<-temp_duration(chemical_times_csv,1,"bullseye") #isolate chemical duration, save as variable "duration" 
+  t_timeframe<-TempStats_times(ISS001,start,duration) #get temp start and end times
+    ISS_duration<-ISS_period(ISS001,start,duration) #subsets station data into table for just this time period
+  ISS_summary<-sum_stats_values(ISS_duration$temperature) #get summary statistics
+ISS1_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary) #creates vector of the times and summary statistics for ISS1 Bullseye
 
-TempStats(ISS001,start,duration,"ISS001 Bullseye", "scatterplot") #prints timeframe, temp summary stats, temp graph
+TempStats(ISS001,start,duration,"ISS001 Bullseye", "scatterplot") #calculates summary statistics, temperature timeframe given temperature start time and duration (determined by chem_measure() or input manually), and produces plot (bar or scatter) of temperature
 
-#Away
-chem_time<-chem_measure(chemical_times_csv,1,"away")
-  start<-temp_start(chemical_times_csv,1,"away")
-  duration<-temp_duration(chemical_times_csv,1,"away")
-t_timeframe<-TempStats_times(ISS001,start,duration)
-  ISS_per<-ISS_period(ISS001,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#50cm Away
+  chem_time<-chem_measure(chemical_times_csv, 1,"away")
+    start<-temp_start(chemical_times_csv,1,"away")
+    duration<-temp_duration(chemical_times_csv,1,"away")
+  t_timeframe<-TempStats_times(ISS001,start,duration)
+    ISS_duration<-ISS_period(ISS001,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS1_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS001,start,duration,"ISS001 0.5m Away", "scatterplot")
-
+TempStats(ISS001,start,duration,"ISS1 0.50m Away from Bullseye","scatterplot")
 ```
 ISS 002
 ```{r 002}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,2,"bullseye")
-  start<-temp_start(chemical_times_csv,2,"bullseye")
-  duration<-temp_duration(chemical_times_csv,2,"bullseye")
-t_timeframe<-TempStats_times(ISS002,start,duration)
-  ISS_per<-ISS_period(ISS002,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,2,"bullseye")
+    start<-temp_start(chemical_times_csv,2,"bullseye")
+    duration<-temp_duration(chemical_times_csv,2,"bullseye")
+  t_timeframe<-TempStats_times(ISS002,start,duration)
+    ISS_duration<-ISS_period(ISS002,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS2_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 TempStats(ISS002,start,duration,"ISS002 Bullseye", "scatterplot")
 
-#Away
-chem_time<-chem_measure(chemical_times_csv,2,"away")
-  start<-temp_start(chemical_times_csv,2,"away")
-  duration<-temp_duration(chemical_times_csv,2,"away")
-t_timeframe<-TempStats_times(ISS002,start,duration)
-  ISS_per<-ISS_period(ISS002,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#50cm Away
+  chem_time<-chem_measure(chemical_times_csv, 2,"away")
+    start<-temp_start(chemical_times_csv,2,"away")
+    duration<-temp_duration(chemical_times_csv,2,"away")
+  t_timeframe<-TempStats_times(ISS002,start,duration)
+    ISS_duration<-ISS_period(ISS002,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS2_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS002,start,duration,"ISS002 0.5m Away", "scatterplot")
+TempStats(ISS002,start,duration,"ISS2 0.50m Away from Bullseye","scatterplot")
 ```
 ISS 003
 ```{r 003}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,3,"bullseye")
-  start<-temp_start(chemical_times_csv,3,"bullseye")
-  duration<-temp_duration(chemical_times_csv,3,"bullseye")
-t_timeframe<-TempStats_times(ISS003,start,duration)
-  ISS_per<-ISS_period(ISS003,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,3,"bullseye") 
+    start<-temp_start(chemical_times_csv,3,"bullseye")
+    duration<-temp_duration(chemical_times_csv,3,"bullseye")
+  t_timeframe<-TempStats_times(ISS003,start,duration) 
+    ISS_duration<-ISS_period(ISS003,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS3_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 TempStats(ISS003,start,duration,"ISS003 Bullseye", "scatterplot")
 
-#Away
-chem_time<-chem_measure(chemical_times_csv,3,"away")
-  start<-temp_start(chemical_times_csv,3,"away")
-  duration<-temp_duration(chemical_times_csv,3,"away")
-t_timeframe<-TempStats_times(ISS003,start,duration)
-  ISS_per<-ISS_period(ISS003,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#50cm Away
+  chem_time<-chem_measure(chemical_times_csv, 3,"away")
+      start<-temp_start(chemical_times_csv,3,"away")
+    duration<-temp_duration(chemical_times_csv,3,"away")
+  t_timeframe<-TempStats_times(ISS003,start,duration)
+    ISS_duration<-ISS_period(ISS003,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS3_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS003,start,duration,"ISS003 0.5m Away", "scatterplot")
+TempStats(ISS003,start,duration,"ISS3 0.50m Away from Bullseye","scatterplot")
 ```
 ISS 004
 ```{r 004}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,4,"bullseye")
-  start<-temp_start(chemical_times_csv,4,"bullseye")
-  duration<-temp_duration(chemical_times_csv,4,"bullseye")
-t_timeframe<-TempStats_times(ISS004,start,duration)
-  ISS_per<-ISS_period(ISS004,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,4,"bullseye") 
+    start<-temp_start(chemical_times_csv,4,"bullseye")
+    duration<-temp_duration(chemical_times_csv,4,"bullseye")
+  t_timeframe<-TempStats_times(ISS004,start,duration) 
+    ISS_duration<-ISS_period(ISS004,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 TempStats(ISS004,start,duration,"ISS004 Bullseye", "scatterplot")
 
-#Away
-chem_time<-chem_measure(chemical_times_csv,4,"away")
-  start<-temp_start(chemical_times_csv,4,"away")
-  duration<-temp_duration(chemical_times_csv,4,"away")
-t_timeframe<-TempStats_times(ISS004,start,duration)
-  ISS_per<-ISS_period(ISS004,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#50cm Away
+  chem_time<-chem_measure(chemical_times_csv, 4,"away")
+    start<-temp_start(chemical_times_csv,4,"away")
+    duration<-temp_duration(chemical_times_csv,4,"away")
+  t_timeframe<-TempStats_times(ISS004,start,duration)
+    ISS_duration<-ISS_period(ISS004,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS004,start,duration,"ISS004 0.5m Away", "scatterplot")
+TempStats(ISS004,start,duration,"ISS4 0.50m Away from Bullseye","scatterplot")
 
 #Bullseye Post Excavation
-chem_time<-chem_measure(chemical_times_csv,4,"excavated_bullseye")
-  start<-temp_start(chemical_times_csv,4,"excavated_bullseye")
-  duration<-temp_duration(chemical_times_csv,4,"excavated_bullseye")
-t_timeframe<-TempStats_times(ISS004,start,duration)
-  ISS_per<-ISS_period(ISS004,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv, 4,"excavated_bullseye")
+    start<-temp_start(chemical_times_csv,4,"excavated_bullseye")
+    duration<-temp_duration(chemical_times_csv,4,"excavated_bullseye")
+  t_timeframe<-TempStats_times(ISS004,start,duration)
+    ISS_duration<-ISS_period(ISS004,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS004,start,duration,"ISS004 Excavated Bullseye", "scatterplot")
+TempStats(ISS004,start,duration,"ISS4 Excavated Bullseye","scatterplot")
 ```
 ISS 005
 ```{r 005}
-#excavated bullseye
-chem_time<-chem_measure(chemical_times_csv,5,"excavated_bullseye")
-  start<-temp_start(chemical_times_csv,5,"excavated_bullseye")
-  duration<-temp_duration(chemical_times_csv,5,"excavated_bullseye")
-t_timeframe<-TempStats_times(ISS005,start,duration)
-  ISS_per<-ISS_period(ISS005,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#Excavated Bullseye
+  chem_time<-chem_measure(chemical_times_csv,5,"excavated_bullseye") 
+    start<-temp_start(chemical_times_csv,5,"excavated_bullseye")
+    duration<-temp_duration(chemical_times_csv,5,"excavated_bullseye")
+  t_timeframe<-TempStats_times(ISS005,start,duration)
+    ISS_duration<-ISS_period(ISS005,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS5_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS005,start,duration,"ISS005 Excavated Bullseye", "scatterplot")
+TempStats(ISS005,start,duration,"ISS5 Excavated Bullseye", "scatterplot")
 
-#50cm Away
-##no chem/temp data?? ->removed from Pescadero_20180621_Scotts_Times_TempData_sheet2.csv
+#50cm Away: no chemical data
 
 #75cm Away
-chem_time<-chem_measure(chemical_times_csv,5,"excavated_away")
-  start<-temp_start(chemical_times_csv,5,"excavated_away")
-  duration<-temp_duration(chemical_times_csv,5,"excavated_away")
-t_timeframe<-TempStats_times(ISS005,start,duration)
-  ISS_per<-ISS_period(ISS005,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,5,"excavated_away")
+    start<-temp_start(chemical_times_csv,5,"excavated_away")
+    duration<-temp_duration(chemical_times_csv,5,"excavated_away")
+  t_timeframe<-TempStats_times(ISS005,start,duration)
+    ISS_duration<-ISS_period(ISS005,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS5_0.75m_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS005,start,duration,"ISS005 0.75m Excavated Away", "scatterplot")
+TempStats(ISS005,start,duration,"ISS5 0.75m Away from Bullseye","scatterplot")
+
 ```
 ISS 006
 ```{r 006}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,6,"bullseye")
-  start<-temp_start(chemical_times_csv,6,"bullseye")
-  duration<-temp_duration(chemical_times_csv,6,"bullseye")
-t_timeframe<-TempStats_times(ISS006,start,duration)
-  ISS_per<-ISS_period(ISS006,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,6,"bullseye")
+    start<-temp_start(chemical_times_csv,6,"bullseye")
+    duration<-temp_duration(chemical_times_csv,6,"bullseye")
+  t_timeframe<-TempStats_times(ISS006,start,duration) 
+    ISS_duration<-ISS_period(ISS006,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS6_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 TempStats(ISS006,start,duration,"ISS006 Bullseye", "scatterplot")
 
-#Excavated Bullseye
-chem_time<-chem_measure(chemical_times_csv,6,"excavated_bullseye")
-  start<-temp_start(chemical_times_csv,6,"excavated_bullseye")
-  duration<-temp_duration(chemical_times_csv,6,"excavated_bullseye")
-t_timeframe<-TempStats_times(ISS006,start,duration)
-  ISS_per<-ISS_period(ISS006,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+#Bullseye Post Excavation
+  chem_time<-chem_measure(chemical_times_csv, 6,"excavated_bullseye")
+    start<-temp_start(chemical_times_csv,6,"excavated_bullseye")
+    duration<-temp_duration(chemical_times_csv,6,"excavated_bullseye")
+  t_timeframe<-TempStats_times(ISS006,start,duration)
+    ISS_duration<-ISS_period(ISS006,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS6_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS006,start,duration,"ISS006 Excavated Bullseye", "scatterplot")
+TempStats(ISS006,start,duration,"ISS6 Excavated Bullseye","scatterplot")
+
 ```
 ISS 007
 ```{r 007}
 #Bullseye
-chem_time<-chem_measure(chemical_times_csv,7,"bullseye")
-  start<-temp_start(chemical_times_csv,7,"bullseye")
-  duration<-temp_duration(chemical_times_csv,7,"bullseye")
-t_timeframe<-TempStats_times(ISS007,start,duration)
-  ISS_per<-ISS_period(ISS007,start,duration)
-ISS_summary<-sum_stats_values(ISS_per$temperature)
+  chem_time<-chem_measure(chemical_times_csv,7,"bullseye") 
+    start<-temp_start(chemical_times_csv,7,"bullseye")
+    duration<-temp_duration(chemical_times_csv,7,"bullseye")
+  t_timeframe<-TempStats_times(ISS007,start,duration) 
+    ISS_duration<-ISS_period(ISS007,start,duration)
+  ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS7_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 TempStats(ISS007,start,duration,"ISS007 Bullseye", "scatterplot")
 
-#50cm Away
-##no away chem/temp data
+#50cm Away: no chemical data
 ```
 
 Table of Times and Data
