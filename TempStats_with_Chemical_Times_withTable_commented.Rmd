@@ -169,7 +169,8 @@ TempStats(ISS002,start,duration,"ISS002 Bullseye", "scatterplot")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 2,"away")
-    start<-temp_start(chemical_times_csv,2,"away")
+#    start<-temp_start(chemical_times_csv,2,"away") we think we need 10 min earlier
+    start<-"2017-10-31 21:40:00"
     duration<-temp_duration(chemical_times_csv,2,"away")
   t_timeframe<-TempStats_times(ISS002,start,duration)
     ISS_duration<-ISS_period(ISS002,start,duration)
@@ -217,7 +218,8 @@ TempStats(ISS004,start,duration,"ISS004 Bullseye", "scatterplot")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 4,"away")
-    start<-temp_start(chemical_times_csv,4,"away")
+#    start<-temp_start(chemical_times_csv,4,"away") we think 10 min earlier using our end time
+    start<-"2017-11-02 04:06:00"
     duration<-temp_duration(chemical_times_csv,4,"away")
   t_timeframe<-TempStats_times(ISS004,start,duration)
     ISS_duration<-ISS_period(ISS004,start,duration)
