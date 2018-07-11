@@ -21,12 +21,15 @@ sum_stats<-function(x){
     digits <- 1
   else
     digits<-nchar(decimal)+1
+  min<-paste("minimum =", round(min(x, na.rm=T), digits=digits))
+  max<-paste("maximum =", round(max(x, na.rm=T), digits=digits))
   mean<-paste("mean =", round(mean(x, na.rm=T), digits=digits))
   med<-paste("median =", round(median(x, na.rm=T), digits=digits))
   range<-paste("range =", round(max(x, na.rm=T)-min(x, na.rm=T), digits=digits))
   var<-paste("variance =", round(var(x, na.rm=T), digits=digits))
   sd<-paste("standard deviation =", round(sd(x, na.rm=T), digits=digits))
   SEM<-paste("Standard Error of the Mean =",round(SEM(x),digits=digits))
-  sum_stat<-c("Summary Statistics:",mean,med,range,var,sd,SEM)
+  sum_stat<-c("Summary Statistics:",max,min,mean,med,range,var,sd,SEM)
   writeLines(sum_stat)
 }
+
