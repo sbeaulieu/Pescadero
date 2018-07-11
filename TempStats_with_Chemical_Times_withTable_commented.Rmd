@@ -10,11 +10,11 @@ output:
 
 ##Introduction (WIP)
 
-This notebook uses the custom function TempStats, in the custom library PescStats (available on GitHub at sbeaulieu/Pescadero/PescStats), to get a plot (barplot or scatterplot) and summary statistics of temperature data from a 10 minute interval near the end of chemical measurements. TempStats() relies on functions from the package lubridate. The library devtools is also called, but is only necessary for installing PescStats from GitHub. The functions in PescStats are frequently updated, so PescStats may need to be reinstalled on occasion. Variations on the functions sum_stats() and TempStats() are defined below as sum_stats_values() and TempStats_Times(), as wll as the two novel functions chem_measure() and ISS_Stats(). temp_start(), temp_duration(), and ISS_period() have also been added; they were originally part of previous functions (chem_measure() for the first two, ISS_Stats() for the last one), but were separated out to avoid globally defining variables with functions. The purposes of all additional functions are commented where they are defined.
+This notebook uses the custom function TempStats, in the custom library PescStats (available on GitHub at sbeaulieu/Pescadero/PescStats), to get a plot (barplot or scatterplot) and summary statistics of temperature data from a 10 minute interval near the end of chemical measurements. TempStats() relies on functions from the package lubridate. The library devtools is also called, but is only necessary for installing PescStats from GitHub. The functions in PescStats are frequently updated, so PescStats may need to be reinstalled on occasion. Variations on the functions sum_stats() and TempStats() are defined below as sum_stats_values() and TempStats_Times(), as well as the two novel functions chem_measure() and ISS_Stats(). temp_start(), temp_duration(), and ISS_period() have also been added; they were originally part of previous functions (chem_measure() for the first two, ISS_Stats() for the last one), but were separated out to avoid globally defining variables with functions. The purposes of all additional functions are commented where they are defined.
 
 Note that in the current version of this notebook, chem_measure(), temp_start(), and temp_duration() must be run before TempStats() and TempStats_times() if one wants to automatically retrieve the timing and duration for temperature measurements based on chemical measurements. Both TempStats() and TempStats_times() can still take manually-input start time and duration values. Additionally, ISS_period() must be run before ISS_Stats(). TempStats_times(), ISS_duration() and TempStats() should take the same first three arguments, in the same order, to ensure the data output to the table are the same as those printed in the chunk and output to the temperature graph. temp_start() and temp_duration() should take the same arguements as chem_time(), as they were all initially part of the same function.
 
-This notebook also uses eight specific .csv files: one giving, among other things, the start and end times of chemical measurements per location, and one file for each of the seven station. The majority of the functions utilized in this notebook, but especially chem_measure(), TempStats(), and TempStats_times() are built around the syntax utilized in the files they call, referencing things such as specific column headers. These files, as well as the current version of this R Notebook, may be found in the Google Drive. For ease of modification, the file names are assigned to variables in the r chunk {r variables called often}, under the subheading "Assigning file names to variables". This way, if the file is renamed, the name just be modified in this chunk, rather than having to modify every instance in which that file is called.
+This notebook also uses eight specific .csv files: one giving, among other things, the start and end times of chemical measurements per location, and one file for each of the seven stations. The majority of the functions utilized in this notebook, but especially chem_measure(), TempStats(), and TempStats_times() are built around the syntax utilized in the files they call, referencing things such as specific column headers. These files, as well as the current version of this R Notebook, may be found in the Google Drive folder "Files for R Temperature Notebook (includes temp logs)". For ease of modification, the file names are assigned to variables in the r chunk {r variables called often}, under the subheading "Assigning file names to variables". This way, if the file is renamed, the name just be modified in this chunk, rather than having to modify every instance in which that file is called.
 
 This notebook currently outputs all results within each chunk, not to separate files. Each temperature graph for a given location (eg, bullseye or away) should be generated at the end of the code for that location, along with the printed summary statistics. The table detailing temperature and chemical times per location, along with the summary statistics, is at the very end of this notebook.
 
@@ -62,10 +62,12 @@ temp_start<-function(x,y,z){ #same input as chem_measure()
   chem_end<-ymd_hms(this_locale$Chem_Data_End_Text) #previously in chem_measure
   interval<-interval(chem_start,chem_end) #sets interval for calculating length of time btwn start and end
   length<-time_length(interval,unit="minutes") #calculates time difference, in min, btwn start end end
-  if (length<10)
-    start<-chem_start #sets temp_start to start time of chemistry measurements if chemistry taken for less than 10min
+#  if (length<10) initially used 10 min but then Scott told us about several minute lag for mass spec
+  if (length<15)
+    start<-chem_start #sets temp_start to start time of chemistry measurements if chemistry taken for less than 15min
   else
-    start<-ymd_hms(chem_end)-minutes(10) #sets temp_start to 10min before the end of chemical measurements if chemistry taken for 10 minutes or more
+#    start<-ymd_hms(chem_end)-minutes(10) #sets temp_start to 10min before the end of chemical measurements if chemistry taken for 10 minutes or more
+    start<-ymd_hms(chem_end)-minutes(15) #sets temp_start to 15min before the end of chemical measurements if chemistry taken for 15 minutes or more
 }
 
 temp_duration<-function(x,y,z){ #same input as chem_measure() and temp_duration()
@@ -169,7 +171,8 @@ TempStats(ISS002,start,duration,"ISS002 Bullseye", "scatterplot")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 2,"away")
-    start<-temp_start(chemical_times_csv,2,"away")
+#    start<-temp_start(chemical_times_csv,2,"away") we think we need 10 min earlier
+    start<-"2017-10-31 21:40:00"
     duration<-temp_duration(chemical_times_csv,2,"away")
   t_timeframe<-TempStats_times(ISS002,start,duration)
     ISS_duration<-ISS_period(ISS002,start,duration)
@@ -217,7 +220,8 @@ TempStats(ISS004,start,duration,"ISS004 Bullseye", "scatterplot")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 4,"away")
-    start<-temp_start(chemical_times_csv,4,"away")
+#    start<-temp_start(chemical_times_csv,4,"away") we think 10 min earlier using our end time
+    start<-"2017-11-02 04:06:00"
     duration<-temp_duration(chemical_times_csv,4,"away")
   t_timeframe<-TempStats_times(ISS004,start,duration)
     ISS_duration<-ISS_period(ISS004,start,duration)
