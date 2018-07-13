@@ -25,6 +25,7 @@ library(lubridate)#load Lubridate
 #library(devtools) #load devtools (only necessary if installing PescStats from GitHub)
 #install_github("sbeaulieu/Pescadero/PescStats") #installs PescStats; not a bad idea to frequently re-install due to ongoing modifications of the package
 library(PescStats) #load PescStats
+library(ggplot2)
 ```
 
 ###Locally defined functions:
@@ -35,13 +36,15 @@ sum_stats_values<-function(x){   #variation of sum_stats() function in PescStats
     digits <- 1 #sets up for rounding to 1 decimal place if original data is whole numbers
   else
     digits<-nchar(decimal)+1 #sets up for rounding to 1 more decimal place than in original data
+  min<-round(min(x, na.rm=T), digits=digits)
+  max<-round(max(x, na.rm=T), digits=digits)
   mean<-round(mean(x, na.rm=T), digits=digits) #calculates mean of data, with NAs removed and rounding
   med<-round(median(x, na.rm=T), digits=digits) #calculates median of data, with NAs removed and rounding
   range<-round(max(x, na.rm=T)-min(x, na.rm=T), digits=digits) #calculates range of data, with NAs removed and rounding
   var<-round(var(x, na.rm=T), digits=digits) #calculates variance of data, with NAs removed and rounding
   sd<-round(sd(x, na.rm=T), digits=digits) #calculates standard devation of data, with NAs removed and rounding
   SEM<-round(SEM(x),digits=digits) #calculates standard error of the mean of data, with NAs removed and roundign
-  ISS_summary<-c(mean,med,range,var,sd,SEM) #stores summary statistics
+  ISS_summary<-c(max,min,mean,med,range,var,sd,SEM) #stores summary statistics
 }
 
 chem_measure<-function(x,y,z){ #catered to pulling chem data times from various versions of the same spreadsheet
@@ -143,7 +146,13 @@ ISS 001
   ISS_summary<-sum_stats_values(ISS_duration$temperature) #get summary statistics
 ISS1_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary) #creates vector of the times and summary statistics for ISS1 Bullseye
 
+site<-"ISS 001" 
+location<-"bullseye"
+ISS1bull_duration<-cbind(ISS_duration,site,location) #columns of site and location, for cumulative boxplot
+
 TempStats(ISS001,start,duration,"ISS001 Bullseye", "scatterplot") #calculates summary statistics, temperature timeframe given temperature start time and duration (determined by chem_measure() or input manually), and produces plot (bar or scatter) of temperature
+
+boxplot(temperature~location,data=ISS1bull_duration, main="ISS 001 Bullseye", ylab="Temperature (C)") #boxplot of just ISS1 bullseye
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 1,"away")
@@ -154,7 +163,13 @@ TempStats(ISS001,start,duration,"ISS001 Bullseye", "scatterplot") #calculates su
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS1_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 001"
+location<-"away"
+ISS1away_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS001,start,duration,"ISS1 0.50m Away from Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS1away_duration, main="ISS 001 Away", ylab="Temperature (C)")
 ```
 ISS 002
 ```{r 002}
@@ -167,7 +182,13 @@ ISS 002
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS2_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 002"
+location<-"bullseye"
+ISS2bull_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS002,start,duration,"ISS002 Bullseye", "scatterplot")
+
+boxplot(temperature~location,data=ISS2bull_duration, main="ISS 002 Bullseye", ylab="Temperature (C)")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 2,"away")
@@ -179,7 +200,13 @@ TempStats(ISS002,start,duration,"ISS002 Bullseye", "scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS2_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 002"
+location<-"away"
+ISS2away_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS002,start,duration,"ISS2 0.50m Away from Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS2away_duration, main="ISS 002 Away", ylab="Temperature (C)")
 ```
 ISS 003
 ```{r 003}
@@ -192,7 +219,13 @@ ISS 003
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS3_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 003"
+location<-"bullseye"
+ISS3bull_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS003,start,duration,"ISS003 Bullseye", "scatterplot")
+
+boxplot(temperature~location,data=ISS3bull_duration, main="ISS 003 Bullseye", ylab="Temperature (C)")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 3,"away")
@@ -203,20 +236,32 @@ TempStats(ISS003,start,duration,"ISS003 Bullseye", "scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS3_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 003"
+location<-"away"
+ISS3away_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS003,start,duration,"ISS3 0.50m Away from Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS3away_duration, main="ISS 003 Away", ylab="Temperature (C)")
 ```
 ISS 004
 ```{r 004}
 #Bullseye
   chem_time<-chem_measure(chemical_times_csv,4,"bullseye") 
-    start<-temp_start(chemical_times_csv,4,"bullseye")
+    start<-"2017-11-02 02:08:00"
     duration<-temp_duration(chemical_times_csv,4,"bullseye")
   t_timeframe<-TempStats_times(ISS004,start,duration) 
     ISS_duration<-ISS_period(ISS004,start,duration)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 004"
+location<-"bullseye"
+ISS4bull_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS004,start,duration,"ISS004 Bullseye", "scatterplot")
+
+boxplot(temperature~location,data=ISS4bull_duration, main="ISS 004 Bullseye", ylab="Temperature (C)")
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 4,"away")
@@ -228,7 +273,13 @@ TempStats(ISS004,start,duration,"ISS004 Bullseye", "scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 004"
+location<-"away"
+ISS4away_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS004,start,duration,"ISS4 0.50m Away from Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS4away_duration, main="ISS 004 Away", ylab="Temperature (C)")
 
 #Bullseye Post Excavation
   chem_time<-chem_measure(chemical_times_csv, 4,"excavated_bullseye")
@@ -239,7 +290,13 @@ TempStats(ISS004,start,duration,"ISS4 0.50m Away from Bullseye","scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS4_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 004"
+location<-"excavated bullseye"
+ISS4xbul_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS004,start,duration,"ISS4 Excavated Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS4xbul_duration, main="ISS 004 Excavated Bullseye", ylab="Temperature (C)")
 ```
 ISS 005
 ```{r 005}
@@ -252,7 +309,13 @@ ISS 005
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS5_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 005"
+location<-"bullseye"
+ISS5xbul_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS005,start,duration,"ISS5 Excavated Bullseye", "scatterplot")
+
+boxplot(temperature~location,data=ISS5xbul_duration, main="ISS 005 Excavated Bullseye", ylab="Temperature (C)")
 
 #50cm Away: no chemical data
 
@@ -265,8 +328,13 @@ TempStats(ISS005,start,duration,"ISS5 Excavated Bullseye", "scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS5_0.75m_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
-TempStats(ISS005,start,duration,"ISS5 0.75m Away from Bullseye","scatterplot")
+site<-"ISS 005"
+location<-"excavated away"
+ISS5xawy_duration<-cbind(ISS_duration,site,location)
 
+TempStats(ISS005,start,duration,"ISS5 Excavated 0.75m Away from Bullseye","scatterplot")
+
+boxplot(temperature~location,data=ISS5xawy_duration, main="ISS 005 Excavated Away", ylab="Temperature (C)")
 ```
 ISS 006
 ```{r 006}
@@ -279,7 +347,13 @@ ISS 006
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS6_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 006"
+location<-"bullseye"
+ISS6bull_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS006,start,duration,"ISS006 Bullseye", "scatterplot")
+
+boxplot(temperature~location,data=ISS6bull_duration, main="ISS 006 Bullseye", ylab="Temperature (C)")
 
 #Bullseye Post Excavation
   chem_time<-chem_measure(chemical_times_csv, 6,"excavated_bullseye")
@@ -290,8 +364,13 @@ TempStats(ISS006,start,duration,"ISS006 Bullseye", "scatterplot")
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS6_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 006"
+location<-"excavated bullseye"
+ISS6xbul_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS006,start,duration,"ISS6 Excavated Bullseye","scatterplot")
 
+boxplot(temperature~location,data=ISS6xbul_duration, main="ISS 006 Excavated Bullseye", ylab="Temperature (C)")
 ```
 ISS 007
 ```{r 007}
@@ -304,18 +383,51 @@ ISS 007
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS7_bullseye<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
+site<-"ISS 007"
+location<-"bullseye"
+ISS7bull_duration<-cbind(ISS_duration,site,location)
+
 TempStats(ISS007,start,duration,"ISS007 Bullseye", "scatterplot")
 
+boxplot(temperature~location,data=ISS7bull_duration, main="ISS 007 Bullseye", ylab="Temperature (C)")
 #50cm Away: no chemical data
 ```
 
 Table of Times and Data
 ```{r}
 all<-rbind(ISS1_bullseye,ISS1_away,ISS2_bullseye,ISS2_away,ISS3_bullseye,ISS3_away,ISS4_bullseye,ISS4_away,ISS4_bull_excavated,ISS5_bull_excavated,ISS5_0.75m_away,ISS6_bullseye,ISS6_bull_excavated,ISS7_bullseye) #builds matrix using all station-location vectors above
-columns<-c("Chem Start","Chem End","Temp Start","Temp End","Mean","Median","Range","Variance","St. Dev.","St. Err. Mean") #order of data in ea. vector
+columns<-c("Chem Start","Chem End","Temp Start","Temp End","Maximum","Minimum","Mean","Median","Range","Variance","St. Dev.","St. Err. Mean") #order of data in ea. vector
 colnames(all)<-columns #labels matrix
 
-print(all)
+print(all) #print matrix created above
 print("Temperature data times from near last 10min of chemistry data. All times are UTC, and temperatures in degrees C.")
 
+
+boxplot_all<-rbind(ISS1bull_duration,ISS1away_duration,ISS2bull_duration,ISS2away_duration,ISS3bull_duration,ISS3away_duration,ISS4bull_duration,
+                   ISS4away_duration,ISS4xbul_duration,ISS5xbul_duration,ISS5xawy_duration,ISS6bull_duration,ISS6xbul_duration,ISS7bull_duration) #put all relevant temperature data together (for boxplot)
+
+boxplot_away<-rbind(ISS1away_duration,ISS2away_duration,ISS3away_duration,ISS4away_duration,ISS5xawy_duration) #all away data together
+boxplot_at<-rbind(ISS1bull_duration,ISS2bull_duration,ISS3bull_duration,ISS4bull_duration,ISS4xbul_duration, #all bullseye data together
+                  ISS5xbul_duration,ISS6bull_duration,ISS6xbul_duration,ISS7bull_duration)
+library(ggplot2)
+
+ggplot(boxplot_all, aes(x=site, y=temperature, color=location, fill=location, alpha=0.25)) + #boxplot all temp data, color based on location
+  stat_boxplot(geom ='errorbar', show.legend = FALSE) +
+  geom_boxplot(outlier.shape = 8,outlier.size = 1, alpha = 0.7) +
+  labs(title="Temperatures at all locations") +
+  theme(plot.title = element_text(hjust = 0.5))
+  #geom_point(alpha=1, pch=20)
+ggplot(boxplot_at, aes(x=site, y=temperature, color=location, fill=location, alpha=0.25)) + #boxplot bullseye temp datas, colors ~to as in above
+  stat_boxplot(geom ='errorbar', show.legend = FALSE) +
+  geom_boxplot(outlier.shape = 8,outlier.size = 1, alpha = 0.7)+
+  labs(title="Temperatures at bullseyes")+
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(boxplot_away, aes(x=site, y=temperature, color=location, fill=location, alpha=0.25)) + #boxplot bullseye temp datas, colors ~as in above
+  stat_boxplot(geom ='errorbar', show.legend = FALSE) +
+  geom_boxplot(outlier.shape = 8,outlier.size = 1, alpha = 0.7) +
+ scale_fill_manual(breaks=c("away","excavated away"), values=c("#7CAE00","#C77CFF")) + #colors from library(scales), show_col(hue_pal()(4)) to display colors used in first ggplot
+  scale_color_manual(breaks=c("away","excavated away"), values=c("#7CAE00","#C77CFF")) +
+  labs(title="Temperatures away from bullseyes")+
+  theme(plot.title = element_text(hjust = 0.5)) 
 ```
