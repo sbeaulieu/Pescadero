@@ -29,7 +29,7 @@ sum_stats<-function(x){
   var<-paste("variance =", round(var(x, na.rm=T), digits=digits))
   sd<-paste("standard deviation =", round(sd(x, na.rm=T), digits=digits))
   SEM<-paste("Standard Error of the Mean =",round(SEM(x),digits=digits))
-  sum_stat<-c("Summary Statistics:",max,min,mean,med,range,var,sd,SEM,"")
+  sum_stat<-c("Summary Statistics:",max,min,med,mean,range,var,sd,SEM,"")
   writeLines(sum_stat)
 }
 
