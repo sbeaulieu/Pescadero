@@ -45,7 +45,7 @@ sum_stats_values<-function(x){   #variation of sum_stats() function in PescStats
   var<-round(var(x, na.rm=T), digits=digits) #calculates variance of data, with NAs removed and rounding
   sd<-round(sd(x, na.rm=T), digits=digits) #calculates standard devation of data, with NAs removed and rounding
   SEM<-round(SEM(x),digits=digits) #calculates standard error of the mean of data, with NAs removed and roundign
-  ISS_summary<-c(max,min,mean,med,range,var,sd,SEM) #stores summary statistics
+  ISS_summary<-c(max,min,med,mean,range,var,sd,SEM) #stores summary statistics
 }
 
 chem_measure<-function(x,y,z){ #catered to pulling chem data times from various versions of the same spreadsheet
@@ -158,6 +158,7 @@ ISS 001
 #Bullseye
   chem_time<-chem_measure(chemical_times_csv,1,"bullseye") #print chem start and end times; chemical_times_csv defined in {r variables called often}
     start<-temp_start(chemical_times_csv,1,"bullseye") #isolate chemical start time, save as variable "start"
+          start<-start-minutes(2) #need to start temp 2 minutes earlier, as discerned from graph of unmodified "start" and from video
   t_timeframe<-TempStats_times(ISS001,start,duration) #get temp start and end times
     ISS_duration<-ISS_period(ISS001,start,duration) #subsets station data into table for just this time period
   ISS_summary<-sum_stats_values(ISS_duration$temperature) #get summary statistics
@@ -175,9 +176,11 @@ boxplot(temperature~location,data=ISS1bull_duration, main="ISS 001 Bullseye", yl
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 1,"away")
-    start<-temp_start(chemical_times_csv,1,"away")
-  t_timeframe<-TempStats_times(ISS001,start,duration)
-    ISS_duration<-ISS_period(ISS001,start,duration)
+ #   start<-temp_start(chemical_times_csv,1,"away")
+start<-"2017-10-31 16:10:00" #manually determined time wand near away
+duration2<-7 #moved wand before 10 minutes
+  t_timeframe<-TempStats_times(ISS001,start,duration2)
+    ISS_duration<-ISS_period(ISS001,start,duration2)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS1_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
@@ -187,7 +190,7 @@ ISS1away_duration<-cbind(ISS_duration,site,location)
 
 print(c(site,location)) 
 test_chem_duration(chemical_times_csv,1,"away")
-TempStats(ISS001,start,duration,"ISS1 0.50m Away from Bullseye","scatterplot")
+TempStats(ISS001,start,duration2,"ISS1 0.50m Away from Bullseye","scatterplot")
 
 away1box<-boxplot(temperature~location,data=ISS1away_duration, main="ISS 001 Away", ylab="Temperature (C)")
 ```
@@ -213,8 +216,8 @@ boxplot(temperature~location,data=ISS2bull_duration, main="ISS 002 Bullseye", yl
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 2,"away")
-    start<-temp_start(chemical_times_csv,2,"away") 
-#    start<-"2017-10-31 21:40:00" #manual start time
+  #  start<-temp_start(chemical_times_csv,2,"away") 
+   start<-"2017-10-31 21:40:00" #manual start time based on video
   t_timeframe<-TempStats_times(ISS002,start,duration)
     ISS_duration<-ISS_period(ISS002,start,duration)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
@@ -252,9 +255,11 @@ boxplot(temperature~location,data=ISS3bull_duration, main="ISS 003 Bullseye", yl
 
 #50cm Away
   chem_time<-chem_measure(chemical_times_csv, 3,"away")
-      start<-temp_start(chemical_times_csv,3,"away")
-  t_timeframe<-TempStats_times(ISS003,start,duration)
-    ISS_duration<-ISS_period(ISS003,start,duration)
+    #  start<-temp_start(chemical_times_csv,3,"away")
+    start<-"2017-11-01 22:41:00" #earliest start temp record based on video
+    duration2<-6 #in line with chemistry end
+  t_timeframe<-TempStats_times(ISS003,start,duration2)
+    ISS_duration<-ISS_period(ISS003,start,duration2)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS3_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
@@ -263,8 +268,8 @@ location<-"away"
 ISS3away_duration<-cbind(ISS_duration,site,location)
 
 print(c(site,location))
-test_chem_duration(chemical_times_csv,3,"away")
-TempStats(ISS003,start,duration,"ISS3 0.50m Away from Bullseye","scatterplot")
+print("Temp does not occur 15 minutes before chemistry end, and is a six minute duration to avoid taking temperature after ending chemistry collection.")
+TempStats(ISS003,start,duration2,"ISS3 0.50m Away from Bullseye","scatterplot")
 
 boxplot(temperature~location,data=ISS3away_duration, main="ISS 003 Away", ylab="Temperature (C)")
 ```
@@ -348,11 +353,15 @@ boxplot(temperature~location,data=ISS4xbul_duration, main="ISS 004 Excavated Bul
 ```
 ISS 005
 ```{r 005, message=FALSE,warning=FALSE}
-#Excavated Bullseye
-  chem_time<-chem_measure(chemical_times_csv,5,"excavated_bullseye") 
-    start<-temp_start(chemical_times_csv,5,"excavated_bullseye")
-  t_timeframe<-TempStats_times(ISS005,start,duration)
-    ISS_duration<-ISS_period(ISS005,start,duration)
+#Bullseye #edit: there is a temp measurement before slurp and chemistry
+  chem_time<-chem_measure(chemical_times_csv,5,"excavated_bullseye") #chemistry is post-excavation
+#    start<-temp_start(chemical_times_csv,5,"excavated_bullseye")
+    start<-"2017-11-03 T13:18:45" #manual start time from video
+   duration2<-6 #duration of temp measurement <10 minutes; from video, temp measure goes to about
+  t_timeframe<-TempStats_times(ISS005,start,duration2)
+    ISS_duration<-ISS_period(ISS005,start,duration2)
+ # t_timeframe<-TempStats_times(ISS005,start,duration2)
+ #    ISS_duration<-ISS_period(ISS005,start,duration2)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
 ISS5_bull_excavated<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
@@ -361,30 +370,44 @@ location<-"bullseye"
 ISS5xbul_duration<-cbind(ISS_duration,site,location)
 
 print(c(site,location)) 
-test_chem_duration(chemical_times_csv,5,"excavated_bullseye")
-TempStats(ISS005,start,duration,"ISS5 Excavated Bullseye", "scatterplot")
+#test_chem_duration(chemical_times_csv,5,"excavated_bullseye")
+print("note: temperature not taken during chemistry")
+TempStats(ISS005,start,duration2,"ISS5 Bullseye", "scatterplot")
 
-boxplot(temperature~location,data=ISS5xbul_duration, main="ISS 005 Excavated Bullseye", ylab="Temperature (C)")
+boxplot(temperature~location,data=ISS5xbul_duration, main="ISS 005 Bullseye", ylab="Temperature (C)")
 
-#50cm Away: no chemical data
+
+
+#50cm Away: no chemical data given
+#temp by 50cm away scar, probing temp in substrate
+ start<- "2017-11-03 16:48:30"
+  duration2<-4
+TempStats(ISS005,start,duration2,"ISS5 Excavated 0.50m Away from Bullseye","scatterplot")
+  ISS5xawy_50_duration<-cbind(ISS_duration,site,location)
+boxplot(temperature~location,data=ISS5xawy_50_duration, main="ISS 005 Excavated 0.50m Away from Bullseye", ylab="Temperature (C)")
 
 #75cm Away
+#temp from moving wand around while trying (and failing to probe) into yellow
+#don't have a stable measurement at away 0.75m b/c not enough time to cool, did level off ~2.5C
   chem_time<-chem_measure(chemical_times_csv,5,"excavated_away")
-    start<-temp_start(chemical_times_csv,5,"excavated_away")
-  t_timeframe<-TempStats_times(ISS005,start,duration)
-    ISS_duration<-ISS_period(ISS005,start,duration)
+#   start<-temp_start(chemical_times_csv,5,"excavated_away")
+  start<- "2017-11-03 16:53:00"
+  duration2<-1
+  t_timeframe<-TempStats_times(ISS005,start,duration2)
+    ISS_duration<-ISS_period(ISS005,start,duration2)
   ISS_summary<-sum_stats_values(ISS_duration$temperature)
-ISS5_0.75m_away<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
+ISS5xawy_75<-ISS_Stats(chem_time,t_timeframe,ISS_summary)
 
 site<-"ISS 005"
 location<-"excavated away"
-ISS5xawy_duration<-cbind(ISS_duration,site,location)
+ISS5xawy_75_duration<-cbind(ISS_duration,site,location)
 
 print(c(site,location))
-test_chem_duration(chemical_times_csv,5,"excavated_away")
-TempStats(ISS005,start,duration,"ISS5 Excavated 0.75m Away from Bullseye","scatterplot")
+#test_chem_duration(chemical_times_csv,5,"excavated_away")
+print("note: temperature not taken during chemistry")
+TempStats(ISS005,start,duration2,"ISS5 Excavated 0.75m Away from Bullseye","scatterplot")
 
-boxplot(temperature~location,data=ISS5xawy_duration, main="ISS 005 Excavated Away", ylab="Temperature (C)")
+boxplot(temperature~location,data=ISS5xawy_75_duration, main="ISS 005 Excavated 0.75m Away", ylab="Temperature (C)")
 ```
 ISS 006
 ```{r 006, message=FALSE,warning=FALSE}
@@ -426,7 +449,7 @@ boxplot(temperature~location,data=ISS6xbul_duration, main="ISS 006 Excavated Bul
 ```
 ISS 007
 ```{r 007,message=FALSE,warning=FALSE}
-#Bullseye
+#Bullseye ("chemical bullseye, =/= biological, exactly")
   chem_time<-chem_measure(chemical_times_csv,7,"bullseye") 
     start<-temp_start(chemical_times_csv,7,"bullseye")
   t_timeframe<-TempStats_times(ISS007,start,duration) 
@@ -443,14 +466,38 @@ test_chem_duration(chemical_times_csv,7,"bullseye")
 TempStats(ISS007,start,duration,"ISS007 Bullseye", "scatterplot")
 
 boxplot(temperature~location,data=ISS7bull_duration, main="ISS 007 Bullseye", ylab="Temperature (C)")
-#50cm Away: no chemical data
+#Away: no chemical data
+
+#mat temperatures (first few seconds before into sediment)
+#***1st temperature, 5cm from biological bullseye***
+#   whole measurement: 2017-11-05 T07:17:27 to 2017-11-05 T07:19:55
+#   above flow to into sediment:
+#     duration:
+# 
+# 2nd temperature, in chemical bullseye crack
+#     whole measurement: 2017-11-05 T07:22:55 to 2017-11-05 T07:27:15
+#       pushed in deeper partway thru
+#       above flow to into sediment:
+#         duration:
+#       
+# 
+# 3rd temperature, uphill of chemical bullseye, in mat nearish bio "bullseye"
+#     whole measurement: 2017-11-05 T07:28:30 to 2017-11-05 T07:30:05
+#     above flow to into sediment:
+#         duration:
+# 
+# ***4th temperature, downhill of chemical, in sediment nearish "away"***
+#     whole measurement: 2017-11-05 T07:31:50 to 2017-11-05 T07:34:00
+#     above flow to into sediment:
+#         duration:
+
 ```
 
 Table of Times and Data
 ```{r,message=FALSE,warning=FALSE}
-all<-rbind(ISS1_bullseye,ISS1_away,ISS2_bullseye,ISS2_away,ISS3_bullseye,ISS3_away,ISS4_bullseye,ISS4_bullrock_front,ISS4_bullrock_left,ISS4_away,ISS4_bull_excavated,ISS5_bull_excavated,ISS5_0.75m_away,ISS6_bullseye,ISS6_bull_excavated,ISS7_bullseye) #builds matrix using all station-location vectors above
+all<-rbind(ISS1_bullseye,ISS1_away,ISS2_bullseye,ISS2_away,ISS3_bullseye,ISS3_away,ISS4_bullseye,ISS4_bullrock_front,ISS4_bullrock_left,ISS4_away,ISS4_bull_excavated,ISS5_bull_excavated,ISS5xawy_75,ISS6_bullseye,ISS6_bull_excavated,ISS7_bullseye) #builds matrix using all station-location vectors above
 columns<-c("Chem Start","Chem End","Temp Start","Temp End","Max","Min","Median","Mean","Range","Variance","St. Dev.","St. Err. Mean") #order of data in ea. vector
-colnames(all)<-columns #labels matri
+colnames(all)<-columns #labels matrix
 all_narrow<-subset(all,select=-c(Range,Variance))
 all_narrow[] <- sapply(all_narrow, gsub, pattern='T', replacement=' ')
 all_narrow[] <- sapply(all_narrow, gsub, pattern='Z', replacement='')
@@ -461,9 +508,9 @@ print("Temperature data times from near last 10min of chemistry data. All times 
 
 
 boxplot_all<-rbind(ISS1bull_duration,ISS1away_duration,ISS2bull_duration,ISS2away_duration,ISS3bull_duration,ISS3away_duration,ISS4bull_duration,
-                   ISS4away_duration,ISS4xbul_duration,ISS5xbul_duration,ISS5xawy_duration,ISS6bull_duration,ISS6xbul_duration,ISS7bull_duration) #put all relevant temperature data together (for boxplot)
+                   ISS4away_duration,ISS4xbul_duration,ISS5xbul_duration,ISS5xawy_50_duration,ISS5xawy_75_duration,ISS6bull_duration,ISS6xbul_duration,ISS7bull_duration) #put all relevant temperature data together (for boxplot)
 
-boxplot_away<-rbind(ISS1away_duration,ISS2away_duration,ISS3away_duration,ISS4away_duration,ISS5xawy_duration) #all away data together
+boxplot_away<-rbind(ISS1away_duration,ISS2away_duration,ISS3away_duration,ISS4away_duration,ISS5xawy_75_duration) #all away data together
 boxplot_at<-rbind(ISS1bull_duration,ISS2bull_duration,ISS3bull_duration,ISS4bull_duration,ISS4xbul_duration, #all bullseye data together
                   ISS5xbul_duration,ISS6bull_duration,ISS6xbul_duration,ISS7bull_duration)
 
